@@ -16,7 +16,7 @@ shinyUI(fluidPage(
                   max = 10000,
                   value = 1000),
       sliderInput("lambda", 
-                   "λ",
+                   "Parámetro λ:",
                   min = 0.01,
                   max = 1,
                   value = 0.5)
@@ -24,8 +24,9 @@ shinyUI(fluidPage(
     
     # Show a plot of the generated distribution
     mainPanel(
-      plotlyOutput("trendPlot")
-      #textOutput("text1")
+      plotlyOutput("trendPlot"),
+      
+      textOutput("text1")
     )
   )
 ))
