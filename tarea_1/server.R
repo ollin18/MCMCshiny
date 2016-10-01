@@ -4,25 +4,26 @@ shinyServer(function(input, output) {
   set.seed(20160817)
   
   ElInput <- reactive({
-    nsim <- input$simul
+    nsim <- input$simula
     lambda <- input$lambda
     U <- runif(nsim)
     X <- Finv(U, lambda)
   })
   
   Comp <- reactive({
-    Y <- rnorm(input$simul)
+    Y <- rexp(input$simula,rate=input$lambda)
   })
   
   output$trendPlot <- renderPlotly({
     
     X <- ElInput()
 
-    #X2 <- rexp(nsim, rate=lambda)
+    X2 <- seq(0,max(X),(max(X)-0)/input$simula)
+    funcion <- function(x) input$lambda * exp(- (x * input$lambda)) * input$simula/(input$lambda*10)
+    aplicada <- sapply(X2, funcion)
     
-    plot_ly(x=X, type="histogram", opacity=0.6) #%>%
-     #add_trace(x=X2, type="histogram", opacity=0.6)
-     
+     plot_ly(x=X,type="histogram", opacity=0.4, name = "Simulación por función inversa") %>%
+      add_trace(x=X2, y=aplicada, type="lines", opacity=1, name = "PDF")
   })
   
   output$text1 <- renderPrint({
