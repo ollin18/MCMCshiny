@@ -1,8 +1,13 @@
+concre <- read.csv("./Data/concreto.csv")
+
 library(shiny)
 library(dplyr)
 library(plotly)
 library(ggplot2)
 library(markdown)
+library(DT)
+library(grid)
+library(gridExtra)
 
 shinyUI(fluidPage(
   navbarPage("Tareas",
@@ -41,10 +46,10 @@ shinyUI(fluidPage(
                         sidebarPanel(
                           textInput("funcion", 
                                     "Función a integrar:",
-                                    value = "x**3"),
+                                    value = "x**3 + x**2 * x + 5 * cos(x) + tanh(x)"),
                           numericInput("simul",
                                        "Número de simulaciones:",
-                                       value = 10000,
+                                       value = 1000,
                                        min = 10,
                                        max = 100000),
                           numericInput("a",
@@ -67,6 +72,41 @@ shinyUI(fluidPage(
                           plotOutput("graf_conf")
                         )
                       )
-             )
+             ),
+             tabPanel("Tabla",
+                      sidebarPanel(
+                        h1("Aquí se muestra la tabla de datos a utilizar."),
+                        h3("Se trata de la resistencia del concreto"),
+                       
+                        selectInput("dataset", "Datos a utilizar:", 
+                                    choices = c("concreto")),
+                      
+                        fluidRow(
+                          column(3, selectInput("X",
+                                               "Independiente:",
+                                               c(unique(as.character(names(concre)))))),
+                          column(3, selectInput("Y",
+                                                "Dependiente:",
+                                                c(rev(unique(as.character(names(concre)))))))
+                        )
+                        
+                        ),
+                      
+                      mainPanel(
+                  
+                        fluidRow(
+                          DT::dataTableOutput("table"),
+                          plotOutput("disperso"),
+                          h2("DISTRIBUCIONES A PRIORI"),
+                          h4("Lo hago de esta manera porque no sé nada de cemento"),
+                          plotOutput("distribua"),
+                          plotOutput("distribub"),
+                          h4("Ya me acostumbré a usar precisión en lugar de la varianza"),
+                          plotOutput("distribut")
+                        )
+                      )
+                      
+                      )
   )
+  
 ))

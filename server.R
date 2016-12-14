@@ -1,8 +1,12 @@
+kangu <- read.csv("./Data/kangaroos.csv")
 library(shiny)
 library(dplyr)
 library(plotly)
 library(ggplot2)
 library(markdown)
+library(DT)
+library(grid)
+library(gridExtra)
 
 
 #### Función importantísima para que todo funcione en la vida!!!! ###
@@ -59,7 +63,7 @@ shinyServer(function(input, output){
     aplicada <- sapply(X2, funcion)
 
     plot_ly(x=X,type="histogram", opacity=0.4, name = "Simulación por función inversa") %>%
-      add_trace(x=X2, y=aplicada, type="lines", opacity=1, name = "PDF")
+      add_trace(x=X2, y=aplicada, type="scatter", opacity=0.3, name = "PDF")
   })
   
   output$text1 <- renderPrint({
@@ -81,6 +85,10 @@ shinyServer(function(input, output){
   
   al_cero <- function(x){dist(c(x,0))}
   
+  
+  #### Esta función no la voy a usar pero la dejo aquí por si algún día alguien la ve y le gusta ###
+  #### Es integración por Montecarlo Straightforward ####
+  #### Tal cuál checamos el número de puntos que caen dentro de la curva ####
   integral_MC <- function(f,a,b,N){
     
     simulacion <- runif(N,a,b)
@@ -110,17 +118,24 @@ shinyServer(function(input, output){
     N     <- input$simul
     f     <- fun()
     alphas <- input$alphas
-    return(list(a,b,N,f,alphas))
+    return(list(a,b,N,f))
   })
   
+  ElInputalphas <- reactive({
+    alphas <- input$alphas
+    return(alphas)
+  })
+ 
   LaIntegral <- reactive({
-    c(a,b,N,f,alphas) := ElInput2()
+    alphas <- ElInputalphas()
+    c(a,b,N,f) := ElInput2()
     int <- integral_MC(f,a,b,N)
     int
   })
   
   confianza <- function(Numero){
-    c(a,b,N,f,alphas) := ElInput2()
+    alphas <- ElInputalphas()
+    c(a,b,N,f) := ElInput2()
     uniforme <- runif(Numero, min = a, max = b)
     aplicada <- (b-a)*f(uniforme)
     media <- mean(aplicada)
@@ -134,6 +149,7 @@ shinyServer(function(input, output){
   }
   
   Intervalos <- reactive({
+    alphas <- ElInputalphas()
     c(a,b,N,f,alphas) := ElInput2()
     repeticiones <- seq(10,N,30)
     sapply(repeticiones,confianza, simplify = FALSE) %>%
@@ -142,14 +158,16 @@ shinyServer(function(input, output){
   
   output$text2 <- renderText({
     
-    integral <- round(LaIntegral(), 5)
-    
+    #integral <- round(LaIntegral(), 5)
+    quienes <- Intervalos()
+    integral <- (quienes$media)[length(quienes$media)]
     
     as.character(integral)
   })
   
   output$graf_fun <- renderPlot({
-    c(a,b,N,f,alphas) := ElInput2()
+    alphas <- ElInputalphas()
+    c(a,b,N,f) := ElInput2()
     x <- seq(a,b,(b-a)/N)
     y <- f(x)
     df <- data.frame(x,y)
@@ -161,7 +179,8 @@ shinyServer(function(input, output){
   })
   
   output$graf_conf <- renderPlot({
-    c(a,b,N,f,alphas) := ElInput2()
+    alphas <- ElInputalphas()
+    c(a,b,N,f) := ElInput2()
     ggplot(Intervalos(), aes(x = Numero, y = media)) + 
       geom_ribbon(aes(ymin = minimo, ymax = maximo), 
                   alpha =0.4, fill = '#06b9C7') + 
@@ -171,4 +190,81 @@ shinyServer(function(input, output){
       ggtitle("Intervalos de Confianza")
   })
   
+  
+  ###########################################################################
+  ###########################################################################
+  #################                                         #################
+  #################             Tarea      4                #################
+  #################                                         #################
+  ###########################################################################
+  ###########################################################################
+
+  
+  output$table <- renderDataTable(datatable({
+    concre <- read.csv("./Data/concreto.csv")
+    concre
+  }))
+  
+  ElInput3 <- reactive({
+    nombres <- c(names(concre))
+    for(i in 1:length(nombres)){
+      if(input$X == nombres[i]) {
+        ind <- i
+        namei <- nombres[i]
+      }
+      if(input$Y == nombres[i]) {
+        dep <- i
+        named <- nombres[i]
+      }
+    }
+  return(list(ind,dep,namei,named))
+  })
+  
+  
+  output$disperso <- renderPlot({
+    c(ind,dep,namei,named) := ElInput3()
+   ggplot(concre, aes(x = concre[,ind], y = concre[,dep])) + 
+    geom_point(alpha =0.4, fill = '#08b9C7') + 
+    ylab(namei) + 
+    xlab(named)+
+    ggtitle("Longitud vs ancho de narices de kanguros")
+  })
+   
+  output$distribua <- renderPlot({
+    alph <- c(seq(-4, 4, length=100))
+    dalph <- c(dnorm(alph,0.0001))
+    dfal <- data.frame(alph,dalph)
+    colnames(dfal) <- c("alpha","distr")
+    p1 <- ggplot(dfal,aes(x=alpha,y=distr))+
+      geom_line(fill='#08b9c7')+ 
+      ylab("P(alpha)") + 
+      xlab("alpha")+
+      ggtitle("PDF alpha")
+    p1
+  })
+  
+  output$distribub <- renderPlot({
+    bet <- c(seq(-4, 4, length=100))
+    dbet <- c(dnorm(bet,0.0001))
+    dfbe <- data.frame(bet,dbet)
+    colnames(dfbe) <- c("beta", "distr")
+    p2 <- ggplot(dfbe,aes(x=beta,y=distr))+
+      geom_line(fill='#08b9c7')+ 
+      ylab("P(beta)") + 
+      xlab("beta")+
+      ggtitle("PDF beta")
+    p2
+  })
+  output$distribut <- renderPlot({
+    tau <- c(seq(1, 2, length=100))
+    dtau <- c(dnorm(alph,0.0001))
+    dfta <- data.frame(tau,dtau)
+    colnames(dfta) <- c("tau", "distr")
+    p2 <- ggplot(dfta,aes(x=tau,y=distr))+
+      geom_line(fill='#08b9c7')+ 
+      ylab("P(tau)") + 
+      xlab("tau")+
+      ggtitle("PDF tau")
+    p2
+  })
 })
