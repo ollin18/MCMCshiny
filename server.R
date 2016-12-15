@@ -198,7 +198,6 @@ shinyServer(function(input, output){
 
   
   output$table <- renderDataTable(datatable({
-    concre <- read.csv("./Data/concreto.csv")
     concre
   }))
   
@@ -222,8 +221,8 @@ shinyServer(function(input, output){
     c(ind,dep,namei,named) := ElInput3()
    ggplot(concre, aes(x = concre[,ind], y = concre[,dep])) + 
     geom_point(alpha =0.4, fill = '#08b9C7') + 
-    ylab(namei) + 
-    xlab(named)+
+    ylab(named) + 
+    xlab(namei)+
     ggtitle(eval(namei),eval(named))
   })
    
@@ -471,6 +470,43 @@ shinyServer(function(input, output){
         ggtitle("Serie de sigma")
       })
     }
+  })
+  
+  
+  output$valores <- DT::renderDataTable(DT::datatable({
+    if(is.null(df()))
+      return()
+    else 
+      valores <- df()[-(1:input$sBurnin),]
+      alpha <- mean(valores[,1])
+      beta <- mean(valores[,2])
+      sigma <- mean(valores[,3])
+      Medias <- data.frame(alpha,beta,sigma)
+      return(Medias)
+  }))
+  
+  output$ajuste <- renderPlot({
+    c(ind,dep,namei,named) := ElInput3()
+    valores <- df()[-(1:input$sBurnin),]
+    alpha <- mean(valores[,1])
+    beta <- mean(valores[,2])
+    concre$linea <- concre[,ind]*beta + alpha
+    plot(concre[,ind],concre[,dep])
+    lines(concre[,ind],concre$linea)
+    #ggplot(concre,aes(x=concre[,ind],y=linea))+
+    #  geom_line()+
+     #   ylab(named) +
+      #  xlab(namei)+
+       # ggtitle(eval(namei),eval(named))
+      #geom_point(concre, aes(x = concre[,ind], y = concre[,dep]),alpha =0.4, fill = '#08b9C7')
+    
+    
+    # ggplot(concre, aes(x = concre[,ind], y = concre[,dep])) + 
+    #   geom_point(alpha =0.4, fill = '#08b9C7') + 
+    #   geom_line(linea,aes(x=lineax,y=lineay))+
+    #   ylab(namei) + 
+    #   xlab(named)+
+    #   ggtitle(eval(namei),eval(named))
   })
   
 })

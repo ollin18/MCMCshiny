@@ -126,6 +126,11 @@ shinyUI(fluidPage(theme = shinytheme("united"),
                                              column(4, plotOutput("cadena_alpha")),
                                              column(4, plotOutput("cadena_beta")),
                                              column(4, plotOutput("cadena_sigma"))
+                                           )),
+                                  tabPanel("Valores",
+                                           fluidRow(
+                                             column(8,DT::dataTableOutput("valores")),
+                                             plotOutput("ajuste")
                                            ))
                         )
                       )
