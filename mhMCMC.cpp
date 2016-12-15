@@ -36,8 +36,8 @@ double apriori(NumericVector theta){
   
   double a_ = R::dnorm(alpha, 0, 50, true);
   double b_ = R::dnorm(beta, 0, 50, true);
-  double sd_ = R::dgamma(tau, 0.01, 50,true);
-  double aux = a_+b_+sd_;
+  double tau_ = R::dgamma(tau, 0.01, 50,true);
+  double aux = a_+b_+tau_;
   return(aux);
 }
 

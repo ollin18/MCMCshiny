@@ -4,7 +4,7 @@ paquetines <- c("shiny","shinythemes","dplyr","plotly","ggplot2","markdown","DT"
 no_instalados <- paquetines[!(paquetines %in% installed.packages()[,"Package"])]
 if(length(no_instalados)) install.packages(no_instalados)
 lapply(paquetines, library, character.only = TRUE)
-
+Rcpp::sourceCpp("mhMCMC.cpp")
 
 #### Función importantísima para que todo funcione en la vida!!!! ###
 ':=' <- function(lhs, rhs) {
@@ -273,7 +273,35 @@ shinyServer(function(input, output){
   ###########################################################################
   ###########################################################################
   
+  chain <- reactive({
+    c(ind,dep,namei,named) := ElInput3()
+      theta0 <- c(1,1,1)
+      chain <- mhMCMC(x = concre[,ind], y = concre[,dep], startValue=theta0, iterations=input$sLongitud)
+      return(data.frame(a=chain[,1], b=chain[,2], tau=chain[,3]))
+  })
   
+  
+  df <- eventReactive(input$button, {
+    c(ind,dep,namei,named) := ElInput3()
+      theta0 <- c(1,1,1)
+      chain <- mhMCMC(x = concre[,ind], y = concre[,dep], startValue=theta0, iterations=input$sLongitud)
+      chain <- data.frame(a=chain[,1], b=chain[,2], tau=chain[,3])
+      for (i in 1:input$nCadenas-1){
+        aux <- theta0 + round(10*runif(1))
+        aux2 <- mhMCMC(x = concre[,ind], y = concre[,dep], startValue=aux, iterations=input$sLongitud)
+        aux2 <- data.frame(a=aux2[,1], b=aux2[,2], tau=aux2[,3])
+        chain <- cbind(chain, aux2)
+      return(chain)
+    }
+    
+  })
+  
+  output$cadenasMCMC <- DT::renderDataTable(DT::datatable({
+    if(is.null(df()))
+      return()
+    else 
+      return(df())
+  }))
   
   
   

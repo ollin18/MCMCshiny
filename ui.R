@@ -4,6 +4,7 @@ paquetines <- c("shiny","shinythemes","dplyr","plotly","ggplot2","markdown","DT"
 no_instalados <- paquetines[!(paquetines %in% installed.packages()[,"Package"])]
 if(length(no_instalados)) install.packages(no_instalados)
 lapply(paquetines, library, character.only = TRUE)
+Rcpp::sourceCpp("mhMCMC.cpp")
 
 shinyUI(fluidPage(theme = shinytheme("united"),
   navbarPage("Tareas",
@@ -111,7 +112,7 @@ shinyUI(fluidPage(theme = shinytheme("united"),
                                       )),
                                   tabPanel("MCMC",
                                            fluidRow(
-                                             h1("A ver")
+                                             column(12, DT::dataTableOutput("cadenasMCMC"))
                                            ))
                         )
                       )
