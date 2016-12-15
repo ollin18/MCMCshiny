@@ -1,13 +1,9 @@
 concre <- read.csv("./Data/concreto.csv")
 
-library(shiny)
-library(dplyr)
-library(plotly)
-library(ggplot2)
-library(markdown)
-library(DT)
-library(grid)
-library(gridExtra)
+paquetines <- c("shiny","shinythemes","dplyr","plotly","ggplot2","markdown","DT","grid","gridExtra")
+no_instalados <- paquetines[!(paquetines %in% installed.packages()[,"Package"])]
+if(length(no_instalados)) install.packages(no_instalados)
+lapply(paquetines, library, character.only = TRUE)
 
 
 #### Función importantísima para que todo funcione en la vida!!!! ###
@@ -268,4 +264,17 @@ shinyServer(function(input, output){
       ggtitle("PDF tau")
     p2
   })
+  
+  ###########################################################################
+  ###########################################################################
+  #################                                         #################
+  #################             Tarea      5                #################
+  #################                                         #################
+  ###########################################################################
+  ###########################################################################
+  
+  
+  
+  
+  
 })

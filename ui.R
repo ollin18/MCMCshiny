@@ -1,14 +1,9 @@
 concre <- read.csv("./Data/concreto.csv")
 
-library(shiny)
-library(shinythemes)
-library(dplyr)
-library(plotly)
-library(ggplot2)
-library(markdown)
-library(DT)
-library(grid)
-library(gridExtra)
+paquetines <- c("shiny","shinythemes","dplyr","plotly","ggplot2","markdown","DT","grid","gridExtra")
+no_instalados <- paquetines[!(paquetines %in% installed.packages()[,"Package"])]
+if(length(no_instalados)) install.packages(no_instalados)
+lapply(paquetines, library, character.only = TRUE)
 
 shinyUI(fluidPage(theme = shinytheme("united"),
   navbarPage("Tareas",
@@ -75,7 +70,7 @@ shinyUI(fluidPage(theme = shinytheme("united"),
                         )
                       )
              ),
-             tabPanel("Tarea 4",
+             tabPanel("Tarea 4 y 5",
                       sidebarPanel(
                         h1("Aquí se muestra la tabla de datos a utilizar."),
                         h3("Se trata de la resistencia del concreto"),
@@ -90,24 +85,34 @@ shinyUI(fluidPage(theme = shinytheme("united"),
                           column(3, selectInput("Y",
                                                 "Dependiente:",
                                                 c(rev(unique(as.character(names(concre)))))))
-                        )
+                        ),
+                        numericInput("nCadenas", "Número de cadenas", value=1, min=1, max=5, step=1),
+                        sliderInput("sLongitud", "Longitud de las cadenas", min=10000, max=1000000, value=100000),
+                        sliderInput("sBurnin", "Burnin", min=100, max=10000, value=10000),
+                        actionButton("button", "Just do it")  
                         
                         ),
                       
                       mainPanel(
-                  
-                        fluidRow(
-                          DT::dataTableOutput("table"),
-                          plotOutput("disperso"),
-                          h2("DISTRIBUCIONES A PRIORI"),
-                          h4("Lo hago de esta manera porque no sé nada de cemento"),
-                          h4("alpha con distribución a priori Normal"),
-                          plotOutput("distribua"),
-                          h4("beta con distribución a priori Normal"),
-                          plotOutput("distribub"),
-                          h4("Ya me acostumbré a usar precisión en lugar de la varianza"),
-                          h4("tau con distribución a priori Gamma"),
-                          plotOutput("distribut")
+                        tabsetPanel(type="tabs",
+                                  tabPanel("tabla", 
+                                      fluidRow(
+                                        DT::dataTableOutput("table"),
+                                        plotOutput("disperso"),
+                                        h2("DISTRIBUCIONES A PRIORI"),
+                                        h4("Lo hago de esta manera porque no sé nada de cemento"),
+                                        h4("alpha con distribución a priori Normal"),
+                                        plotOutput("distribua"),
+                                        h4("beta con distribución a priori Normal"),
+                                        plotOutput("distribub"),
+                                        h4("Ya me acostumbré a usar precisión en lugar de la varianza"),
+                                        h4("tau con distribución a priori Gamma"),
+                                        plotOutput("distribut")
+                                      )),
+                                  tabPanel("MCMC",
+                                           fluidRow(
+                                             h1("A ver")
+                                           ))
                         )
                       )
                       
