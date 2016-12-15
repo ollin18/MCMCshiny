@@ -88,15 +88,15 @@ shinyUI(fluidPage(theme = shinytheme("united"),
                                                 c(rev(unique(as.character(names(concre)))))))
                         ),
                         numericInput("nCadenas", "Número de cadenas", value=1, min=1, max=5, step=1),
-                        sliderInput("sLongitud", "Longitud de las cadenas", min=10000, max=1000000, value=100000),
-                        sliderInput("sBurnin", "Burnin", min=100, max=10000, value=10000),
+                        sliderInput("sLongitud", "Longitud de las cadenas", min=10000, max=1000000, value=250000),
+                        sliderInput("sBurnin", "Burnin", min=100, max=50000, value=20000),
                         actionButton("button", "Just do it")  
                         
                         ),
                       
                       mainPanel(
                         tabsetPanel(type="tabs",
-                                  tabPanel("tabla", 
+                                  tabPanel("Datos", 
                                       fluidRow(
                                         DT::dataTableOutput("table"),
                                         plotOutput("disperso"),
@@ -106,13 +106,21 @@ shinyUI(fluidPage(theme = shinytheme("united"),
                                         plotOutput("distribua"),
                                         h4("beta con distribución a priori Normal"),
                                         plotOutput("distribub"),
-                                        h4("Ya me acostumbré a usar precisión en lugar de la varianza"),
-                                        h4("tau con distribución a priori Gamma"),
+                                        h4("sigma con distribución a priori Gamma"),
                                         plotOutput("distribut")
                                       )),
-                                  tabPanel("MCMC",
+                                  tabPanel("Cadenas",
                                            fluidRow(
-                                             column(12, DT::dataTableOutput("cadenasMCMC"))
+                                             column(8,DT::dataTableOutput("cadenasMCMC"))
+                                           )),
+                                  tabPanel("Histogramas",
+                                           fluidRow(
+                                             column(4, plotOutput("hist_alpha")),
+                                             column(4, plotOutput("hist_beta")),
+                                             column(4, plotOutput("hist_sigma")),
+                                             column(4, plotOutput("dens_alpha")),
+                                             column(4, plotOutput("dens_sigma")),
+                                             column(4, plotOutput("dens_beta"))
                                            ))
                         )
                       )

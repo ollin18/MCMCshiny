@@ -19,9 +19,9 @@ double logverosimilitud(NumericVector theta, NumericVector X, NumericVector Y){
   double izquierda;
   
   for (int i=0; i < n; i++){
-    derecha = exp(-pow(Y[i]-yf[i], 2.0)*0.5*tau);
-    izquierda = sqrt(tau)/sqrt(2*M_PI);
-    verosimilitud[i] = log(derecha*izquierda);
+    derecha = exp(-pow(Y[i]-yf[i], 2.0)*0.5/(tau*tau));
+    izquierda = sqrt(2*M_PI)*tau;
+    verosimilitud[i] = log(derecha/izquierda);
   }
   
   double suma = sum(verosimilitud);

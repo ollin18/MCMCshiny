@@ -229,7 +229,7 @@ shinyServer(function(input, output){
    
   output$distribua <- renderPlot({
     alph <- c(seq(-4, 4, length=100))
-    dalph <- c(dnorm(alph,0.0001))
+    dalph <- c(dnorm(alph,1))
     dfal <- data.frame(alph,dalph)
     colnames(dfal) <- c("alpha","distr")
     p1 <- ggplot(dfal,aes(x=alpha,y=distr))+
@@ -242,7 +242,7 @@ shinyServer(function(input, output){
   
   output$distribub <- renderPlot({
     bet <- c(seq(-4, 4, length=100))
-    dbet <- c(dnorm(bet,0.0001))
+    dbet <- c(dnorm(bet,1))
     dfbe <- data.frame(bet,dbet)
     colnames(dfbe) <- c("beta", "distr")
     p2 <- ggplot(dfbe,aes(x=beta,y=distr))+
@@ -277,7 +277,7 @@ shinyServer(function(input, output){
     c(ind,dep,namei,named) := ElInput3()
       theta0 <- c(1,1,1)
       chain <- mhMCMC(x = concre[,ind], y = concre[,dep], startValue=theta0, iterations=input$sLongitud)
-      return(data.frame(a=chain[,1], b=chain[,2], tau=chain[,3]))
+      return(data.frame(alpha=chain[,1], beta=chain[,2], tau=chain[,3]))
   })
   
   
@@ -285,11 +285,11 @@ shinyServer(function(input, output){
     c(ind,dep,namei,named) := ElInput3()
       theta0 <- c(1,1,1)
       chain <- mhMCMC(x = concre[,ind], y = concre[,dep], startValue=theta0, iterations=input$sLongitud)
-      chain <- data.frame(a=chain[,1], b=chain[,2], tau=chain[,3])
+      chain <- data.frame(alpha=chain[,1], beta=chain[,2], tau=chain[,3])
       for (i in 1:input$nCadenas-1){
         aux <- theta0 + round(10*runif(1))
         aux2 <- mhMCMC(x = concre[,ind], y = concre[,dep], startValue=aux, iterations=input$sLongitud)
-        aux2 <- data.frame(a=aux2[,1], b=aux2[,2], tau=aux2[,3])
+        aux2 <- data.frame(alpha=aux2[,1], beta=aux2[,2], tau=aux2[,3])
         chain <- cbind(chain, aux2)
       return(chain)
     }
@@ -303,6 +303,127 @@ shinyServer(function(input, output){
       return(df())
   }))
   
+  output$hist_alpha <- renderPlot({
+    if(is.null(df()))
+      return()
+    else{
+      return({alpha_sb = df()[-(1:input$sBurnin),1]
+      qplot(alpha_sb, geom = "histogram",binwidth = 0.2,
+            main = "Histograma de alpha",
+            xlab = "alpha",
+            fill=I("blue"),
+            col=I("black"),
+            alpha=I(.75))
+      })
+    }
+  })
   
+  output$hist_beta <- renderPlot({
+    if(is.null(df()))
+      return()
+    else{
+      return({beta_sb = df()[-(1:input$sBurnin),2]
+      qplot(beta_sb, geom = "histogram",binwidth = 0.001,
+            main = "Histograma de beta",
+            xlab = "beta",
+            fill=I("red"),
+            col=I("black"),
+            alpha=I(.75))
+      })
+    }
+  })
+  
+  output$hist_sigma <- renderPlot({
+    if(is.null(df()))
+      return()
+    else{
+      return({sigma_sb = df()[-(1:input$sBurnin),3]
+      qplot(sigma_sb, geom = "histogram",binwidth = 0.05,
+            main = "Histograma de sigma",
+            xlab = "sigma",
+            fill=I("green"),
+            col=I("black"),
+            alpha=I(.75))
+      })
+    }
+  })
+
+  output$dens_alpha <- renderPlot({
+    if(is.null(df()))
+      return()
+    else{
+      return({alpha_sb = df()[-(1:input$sBurnin),1]
+      media <- mean(alpha_sb)
+      desv <- sd(alpha_sb)
+      alph <- c(seq(-4, 15, length=100))
+      dalph <- c(dnorm(alph,1))
+      xfit<-seq(min(alph),max(alpha_sb),length=100)
+      yfit<-dnorm(xfit,mean=media,sd=desv)
+      dfal <- data.frame(alph,dalph)
+      colnames(dfal) <- c("alpha","distr")
+      fit <- data.frame(xfit,yfit)
+      ggplot()+
+        geom_line(data=fit,aes(x=xfit,y=yfit),colour="#990000",size=1.5)+
+        geom_area(data=fit,aes(x=xfit,y=yfit),fill="#06b9C7",alpha=0.3)+
+        geom_line(data=dfal,aes(x=alph,y=dalph),colour="#990000",size=1.5)+
+        geom_area(data=dfal,aes(x=alph,y=dalph),fill="#ff00ff",alpha=0.3)+ 
+        ylab('P(alpha)') + 
+        xlab("alpha")+ 
+        ggtitle("Densidad a priori y a posteriori de alpha")
+      })
+    }
+  })
+  
+  output$dens_beta <- renderPlot({
+    if(is.null(df()))
+      return()
+    else{
+      return({beta_sb = df()[-(1:input$sBurnin),2]
+      media <- mean(beta_sb)
+      desv <- sd(beta_sb)
+      bet <- c(seq(-4, 15, length=100))
+      dbet <- c(dnorm(bet,1))
+      xfit<-seq(min(bet),max(beta_sb),length=100)
+      yfit<-dnorm(xfit,mean=media,sd=desv)
+      dfbe <- data.frame(bet,dbet)
+      colnames(dfbe) <- c("beta","distr")
+      fit <- data.frame(xfit,yfit)
+      ggplot()+
+        geom_line(data=fit,aes(x=xfit,y=yfit),colour="#990000",size=1.5)+
+        geom_area(data=fit,aes(x=xfit,y=yfit),fill="#06b9C7",alpha=0.3)+
+        geom_line(data=dfbe,aes(x=beta,y=distr),colour="#990000",size=1.5)+
+        geom_area(data=dfbe,aes(x=beta,y=distr),fill="#ff00ff",alpha=0.3)+ 
+        ylab('P(beta)') + 
+        xlab("beta")+ 
+        ggtitle("Densidad a priori y a posteriori de beta")
+      })
+    }
+  })
+  
+  output$dens_sigma <- renderPlot({
+    if(is.null(df()))
+      return()
+    else{
+      return({sigma_sb = df()[-(1:input$sBurnin),3]
+      media <- mean(sigma_sb)
+      desv <- sd(sigma_sb)
+      sigm <- c(seq(0, 4, length=1000))
+      dsigm <- c(dgamma(tau,0.01))
+      xfit<-seq(min(sigm),max(sigma_sb),length=100)
+      yfit<-dnorm(xfit,mean=media,sd=desv)
+      dfsi <- data.frame(sigm,dsigm)
+      colnames(dfsi) <- c("sigma","distr")
+      fit <- data.frame(xfit,yfit)
+      ggplot()+
+        geom_line(data=fit,aes(x=xfit,y=yfit),colour="#990000",size=1.5)+
+        geom_area(data=fit,aes(x=xfit,y=yfit),fill="#06b9C7",alpha=0.3)+
+        geom_line(data=dfsi,aes(x=sigma,y=distr),colour="#990000",size=1.5)+
+        geom_area(data=dfsi,aes(x=sigma,y=distr),fill="#ff00ff",alpha=0.3)+ 
+        ylab('P(alpha)') + 
+        xlab("alpha")+ 
+        ggtitle("Densidad a priori y a posteriori de alpha")
+      })
+    }
+  })
   
 })
