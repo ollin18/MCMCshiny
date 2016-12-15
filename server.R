@@ -1,4 +1,5 @@
-kangu <- read.csv("./Data/kangaroos.csv")
+concre <- read.csv("./Data/concreto.csv")
+
 library(shiny)
 library(dplyr)
 library(plotly)
@@ -181,7 +182,7 @@ shinyServer(function(input, output){
   output$graf_conf <- renderPlot({
     alphas <- ElInputalphas()
     c(a,b,N,f) := ElInput2()
-    ggplot(Intervalos(), aes(x = Numero, y = media)) + 
+    ggplot(Intervalos(), aes(x = (Numero), y = media)) + 
       geom_ribbon(aes(ymin = minimo, ymax = maximo), 
                   alpha =0.4, fill = '#06b9C7') + 
       geom_line(color = 'black', size = 0.6) + 
@@ -227,7 +228,7 @@ shinyServer(function(input, output){
     geom_point(alpha =0.4, fill = '#08b9C7') + 
     ylab(namei) + 
     xlab(named)+
-    ggtitle("Longitud vs ancho de narices de kanguros")
+    ggtitle(eval(namei),eval(named))
   })
    
   output$distribua <- renderPlot({
@@ -256,8 +257,8 @@ shinyServer(function(input, output){
     p2
   })
   output$distribut <- renderPlot({
-    tau <- c(seq(1, 2, length=100))
-    dtau <- c(dnorm(alph,0.0001))
+    tau <- c(seq(0, 4, length=1000))
+    dtau <- c(dgamma(tau,0.0001))
     dfta <- data.frame(tau,dtau)
     colnames(dfta) <- c("tau", "distr")
     p2 <- ggplot(dfta,aes(x=tau,y=distr))+

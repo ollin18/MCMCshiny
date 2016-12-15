@@ -1,6 +1,7 @@
 concre <- read.csv("./Data/concreto.csv")
 
 library(shiny)
+library(shinythemes)
 library(dplyr)
 library(plotly)
 library(ggplot2)
@@ -9,13 +10,14 @@ library(DT)
 library(grid)
 library(gridExtra)
 
-shinyUI(fluidPage(
+shinyUI(fluidPage(theme = shinytheme("united"),
   navbarPage("Tareas",
              tabPanel("Yo",
                       mainPanel(
                         h1("Ollin Demian Langle Chimal"),
                         h3("Cuenta:"),
-                        h3("116754")
+                        h3("116754"),
+                        img(src="mcfly.jpg",heigth=800,width=800,align = "right")
                       )),
              tabPanel("Tarea 1",
                       titlePanel("Método de la función inversa"),
@@ -73,7 +75,7 @@ shinyUI(fluidPage(
                         )
                       )
              ),
-             tabPanel("Tabla",
+             tabPanel("Tarea 4",
                       sidebarPanel(
                         h1("Aquí se muestra la tabla de datos a utilizar."),
                         h3("Se trata de la resistencia del concreto"),
@@ -99,9 +101,12 @@ shinyUI(fluidPage(
                           plotOutput("disperso"),
                           h2("DISTRIBUCIONES A PRIORI"),
                           h4("Lo hago de esta manera porque no sé nada de cemento"),
+                          h4("alpha con distribución a priori Normal"),
                           plotOutput("distribua"),
+                          h4("beta con distribución a priori Normal"),
                           plotOutput("distribub"),
                           h4("Ya me acostumbré a usar precisión en lugar de la varianza"),
+                          h4("tau con distribución a priori Gamma"),
                           plotOutput("distribut")
                         )
                       )
