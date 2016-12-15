@@ -118,9 +118,14 @@ shinyUI(fluidPage(theme = shinytheme("united"),
                                              column(4, plotOutput("hist_alpha")),
                                              column(4, plotOutput("hist_beta")),
                                              column(4, plotOutput("hist_sigma")),
+                                             h1("A priori en rosa y a posteriori en azul"),
                                              column(4, plotOutput("dens_alpha")),
+                                             column(4, plotOutput("dens_beta")),
                                              column(4, plotOutput("dens_sigma")),
-                                             column(4, plotOutput("dens_beta"))
+                                             h1("Series"),
+                                             column(4, plotOutput("cadena_alpha")),
+                                             column(4, plotOutput("cadena_beta")),
+                                             column(4, plotOutput("cadena_sigma"))
                                            ))
                         )
                       )

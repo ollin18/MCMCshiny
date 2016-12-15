@@ -394,8 +394,7 @@ shinyServer(function(input, output){
         geom_line(data=dfbe,aes(x=beta,y=distr),colour="#990000",size=1.5)+
         geom_area(data=dfbe,aes(x=beta,y=distr),fill="#ff00ff",alpha=0.3)+ 
         ylab('P(beta)') + 
-        xlab("beta")+ 
-        ggtitle("Densidad a priori y a posteriori de beta")
+        xlab("beta")
       })
     }
   })
@@ -408,7 +407,7 @@ shinyServer(function(input, output){
       media <- mean(sigma_sb)
       desv <- sd(sigma_sb)
       sigm <- c(seq(0, 4, length=1000))
-      dsigm <- c(dgamma(tau,0.01))
+      dsigm <- c(dgamma(sigm,0.01))
       xfit<-seq(min(sigm),max(sigma_sb),length=100)
       yfit<-dnorm(xfit,mean=media,sd=desv)
       dfsi <- data.frame(sigm,dsigm)
@@ -422,6 +421,54 @@ shinyServer(function(input, output){
         ylab('P(alpha)') + 
         xlab("alpha")+ 
         ggtitle("Densidad a priori y a posteriori de alpha")
+      })
+    }
+  })
+  
+  output$cadena_alpha <- renderPlot({
+    if(is.null(df()))
+      return()
+    else{
+      return({alpha_sb = df()[,1]
+      iteracion <- seq(1,length(alpha_sb),length=length(alpha_sb))
+      df <- data.frame(alpha_sb,iteracion)
+      ggplot(df,aes(x=iteracion,y=alpha_sb))+
+        geom_line()+
+        ylab('alpha') + 
+        xlab("Iteración")+ 
+        ggtitle("Serie de alpha")
+      })
+    }
+  })
+  
+  output$cadena_beta <- renderPlot({
+    if(is.null(df()))
+      return()
+    else{
+      return({beta_sb = df()[,2]
+      iteracion <- seq(1,length(beta_sb),length=length(beta_sb))
+      df <- data.frame(beta_sb,iteracion)
+      ggplot(df,aes(x=iteracion,y=beta_sb))+
+        geom_line()+
+        ylab('beta') + 
+        xlab("Iteración")+ 
+        ggtitle("Serie de beta")
+      })
+    }
+  })
+  
+  output$cadena_sigma <- renderPlot({
+    if(is.null(df()))
+      return()
+    else{
+      return({sigma_sb = df()[,3]
+      iteracion <- seq(1,length(sigma_sb),length=length(sigma_sb))
+      df <- data.frame(sigma_sb,iteracion)
+      ggplot(df,aes(x=iteracion,y=sigma_sb))+
+        geom_line()+
+        ylab('sigma') + 
+        xlab("Iteración")+ 
+        ggtitle("Serie de sigma")
       })
     }
   })
