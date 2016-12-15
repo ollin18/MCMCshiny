@@ -5,3 +5,6 @@
 
 Alumno: _*Ollin Demian Langle Chimal*_                                                                                                
 Clave:  000116754
+
+
+Los archivos ui y server que están en el root son los buenos
