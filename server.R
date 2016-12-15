@@ -491,7 +491,8 @@ shinyServer(function(input, output){
     alpha <- mean(valores[,1])
     beta <- mean(valores[,2])
     concre$linea <- concre[,ind]*beta + alpha
-    plot(concre[,ind],concre[,dep])
+    plot(concre[,ind],concre[,dep],main="Gráfica de regresión",
+         xlab=namei, ylab=named)
     lines(concre[,ind],concre$linea)
     #ggplot(concre,aes(x=concre[,ind],y=linea))+
     #  geom_line()+
